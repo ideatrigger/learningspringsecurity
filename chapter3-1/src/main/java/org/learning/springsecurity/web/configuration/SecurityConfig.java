@@ -10,6 +10,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 
 @Configuration
 @EnableWebSecurity(debug = false)
@@ -35,6 +38,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         ;
     }
 
+    /**
+     * The parent method from {@link WebSecurityConfigurerAdapter} (public UserDetailsService userDetailsService())
+     * originally returns a {@link UserDetailsService}, but this needs to be a {@link UserDetailsManager}
+     * UserDetailsManager vs UserDetailsService
+     */
+    @Bean
+    @Override
+    public UserDetailsManager userDetailsService() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withUsername("user").password("password").roles("USER").build());
+        manager.createUser(User.withUsername("admin").password("admin").roles("USER", "ADMIN").build());
+        manager.createUser(User.withUsername("user1@example.com").password("user1").roles("USER").build());
+        manager.createUser(User.withUsername("admin1@example.com").password("admin1").roles("USER", "ADMIN").build());
+        return manager;
+    }
+    
     /**
      * HTTP Security configuration
      *
@@ -81,9 +100,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().exceptionHandling().accessDeniedPage("/errors/403")
 
                 .and().formLogin()
-                    .loginPage("/login/form")
+                    .loginPage("/login")
                     .loginProcessingUrl("/login")
-                    .failureUrl("/login/form?error")
+                    .failureUrl("/login?error")
                     .usernameParameter("username")
                     .passwordParameter("password")
                     .defaultSuccessUrl("/default", true)

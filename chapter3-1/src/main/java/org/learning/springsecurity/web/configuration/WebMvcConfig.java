@@ -1,5 +1,12 @@
 package org.learning.springsecurity.web.configuration;
 
+import javax.servlet.Filter;
+
+import org.learning.springsecurity.web.filter.LoggingFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -10,6 +17,18 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
             "classpath:/META-INF/resources/", "classpath:/resources/",
             "classpath:/static/", "classpath:/public/" };
 
+    @Autowired
+    private AutowireCapableBeanFactory beanFactory;
+    
+    @Bean
+    public FilterRegistrationBean loggingFilter() {
+    	FilterRegistrationBean registration = new FilterRegistrationBean();
+    	Filter loggingFilter = new LoggingFilter();
+    	beanFactory.autowireBean(loggingFilter);
+    	registration.setFilter(loggingFilter);
+    	registration.addUrlPatterns("/login*");
+    	return registration;
+    }
 //    @Autowired
 //    private ThymeleafViewResolver thymeleafViewResolver;
 
@@ -103,10 +122,10 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter {
     public void addViewControllers(final ViewControllerRegistry registry) {
         super.addViewControllers(registry);
 
-        registry.addViewController("/login/form")
+        registry.addViewController("/login")
                 .setViewName("login");
-        registry.addViewController("/errors/403")
-                .setViewName("/errors/403");
+        registry.addViewController("/errors")
+                .setViewName("error");
 
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
     }

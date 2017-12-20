@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  *
  * @author Rob Winch
  */
-@Component
+//@Component
 public class UserContextStub implements UserContext {
     private final CalendarUserDao userService;
     /**
